@@ -25,19 +25,7 @@ The RET-CLIP paper presents a foundation-style vision-language model tailored fo
 
 ### What You Intend to Do
 
-In our project iDetect, we will build upon the RET-CLIP idea but apply it to the Peacein / color-fundus-eye dataset (≈ 16,242 images, 10 classes) from Hugging Face. 
-Specifically, we might:
-
-- Use the pretrained RET-CLIP model as a backbone or initialization, and fine-tune it (or adapt it) to classify our dataset’s disease categories.
-
-- Possibly extend or adapt the CLIP framework by pairing images with textual labels or synthetic diagnostic textual descriptions (if available or generated) to refine the cross-modal embedding on our specific disease set.
-
-- Evaluate performance on multi-class (or multi-label) classification and compare against conventional CNN baselines (ResNet, EfficientNet, etc.), demonstrating the benefit of RET-CLIP-driven features.
-
-- Optionally, we could incorporate localization or attention maps (e.g. Grad-CAM) or textual rationales (if report texts are available) to provide interpretability in our application.
-
-Thus, while RET-CLIP proposes a general retinal foundation model across many datasets, our work will concretely instantiate and validate its benefits (or explore limitations) on a single curated dataset (color-fundus-eye) in the context of a practical retinal disease detection system. We might also explore domain adaptation, robustness to device variance, or lightweight deployment.
-
+This project adapts the RET-CLIP idea using the Peacein/color-fundus-eye dataset (~16k images, 10 classes). Since the original RET-CLIP used a private clinical dataset, we will create synthetic text prompts from class labels (e.g., “fundus image showing diabetic retinopathy”) to form image–text pairs. With these, we will train a mini CLIP-style model via contrastive learning, then fine-tune the image encoder with a classifier head for multi-class retinal disease detection. Finally, we will compare this with a standard image-only baseline (ResNet/ViT) to assess the benefits of vision–language pretraining.
 
 # THE FOLLOWING IS SUPPOSED TO BE DONE LATER
 
