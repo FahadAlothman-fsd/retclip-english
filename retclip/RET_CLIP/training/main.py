@@ -286,8 +286,16 @@ def main():
             # Restore the model weight, map model to be loaded to specified single gpu.
             # loc = "cuda:{}".format(args.local_device_rank)
             checkpoint = torch.load(args.resume, map_location="cpu")
-            # sd = {k: v for k, v in checkpoint["state_dict"].items() if "bert.pooler" not in k}
-            sd = {k: v for k, v in checkpoint.items() if "bert.pooler" not in k}
+            # Handle both checkpoint formats: {'state_dict': ...} or direct state dict
+            state_dict = checkpoint.get("state_dict", checkpoint)
+
+            # Strip 'module.' prefix from DDP checkpoints if present
+            if state_dict and next(iter(state_dict.keys())).startswith('module.'):
+                logging.info("Stripping 'module.' prefix from checkpoint keys")
+                sd = {k[len('module.'):]: v for k, v in state_dict.items()
+                      if "bert.pooler" not in k}
+            else:
+                sd = {k: v for k, v in state_dict.items() if "bert.pooler" not in k}
             # Resize the positional embedding by interpolation, if needed
             resize_pos_embed(sd, model, prefix="module.")
             # Adapt flash attention

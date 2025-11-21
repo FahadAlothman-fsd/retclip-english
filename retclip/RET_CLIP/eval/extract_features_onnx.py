@@ -84,7 +84,14 @@ def parse_args():
     )
     parser.add_argument(
         "--text-model",
-        choices=["RoBERTa-wwm-ext-base-chinese", "RoBERTa-wwm-ext-large-chinese", "RBT3-chinese"],
+        choices=[
+            "RoBERTa-wwm-ext-base-chinese",
+            "RoBERTa-wwm-ext-large-chinese",
+            "RBT3-chinese",
+            "microsoft-BiomedNLP-PubMedBERT-base-uncased-abstract-fulltext",
+            "bert-base-uncased",
+            "dmis-lab-biobert-base-cased-v1.1"
+        ],
         default="RoBERTa-wwm-ext-base-chinese",
         help="Name of the text backbone to use.",
     )
