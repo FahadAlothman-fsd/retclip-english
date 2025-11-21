@@ -1,0 +1,3 @@
+# Large data files
+data/full_training/*.tsv
+data/full_training/*.jsonl
