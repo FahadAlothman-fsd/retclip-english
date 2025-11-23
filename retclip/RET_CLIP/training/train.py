@@ -424,10 +424,11 @@ def train(model, data, epoch, optimizer, scaler, scheduler, args, global_trained
             if args.distllation:
                 teacher_accum_image_features = []
 
-        # Note: we clamp to 4.6052 = ln(100), as in the original paper.
-        m.logit_scale.data = torch.clamp(m.logit_scale.data, 0, 4.6052)
-        m.logit_scale_left.data = torch.clamp(m.logit_scale_left.data, 0, 4.6052)
-        m.logit_scale_right.data = torch.clamp(m.logit_scale_right.data, 0, 4.6052)
+        # Note: Increased clamp from 4.6052 (ln(100)) to 6.9078 (ln(1000)) to allow model to escape local minima
+        # Original paper used ln(100), but small datasets may need higher temperature to learn
+        m.logit_scale.data = torch.clamp(m.logit_scale.data, 0, 6.9078)
+        m.logit_scale_left.data = torch.clamp(m.logit_scale_left.data, 0, 6.9078)
+        m.logit_scale_right.data = torch.clamp(m.logit_scale_right.data, 0, 6.9078)
 
         batch_time = time.time() - end
         end = time.time()
