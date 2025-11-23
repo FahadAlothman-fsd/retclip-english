@@ -176,7 +176,26 @@ def main():
             assert args.max_epochs is not None and args.max_epochs > 0
             args.max_steps = (num_batches // args.accum_freq) * args.max_epochs
         total_steps = args.max_steps
-        scheduler = cosine_lr(optimizer, args.lr, args.warmup, total_steps)
+
+        # FIX: Respect --skip-scheduler flag
+        if args.skip_scheduler:
+            # Create a constant LR scheduler (warmup only, then constant)
+            def constant_lr_with_warmup(optimizer, base_lr, warmup_length):
+                def _lr_adjuster(step):
+                    if step < warmup_length:
+                        from RET_CLIP.training.scheduler import _warmup_lr, assign_learning_rate
+                        lr = _warmup_lr(base_lr, warmup_length, step)
+                    else:
+                        lr = base_lr  # Keep LR constant after warmup
+                    from RET_CLIP.training.scheduler import assign_learning_rate
+                    assign_learning_rate(optimizer, lr)
+                    return lr
+                return _lr_adjuster
+            scheduler = constant_lr_with_warmup(optimizer, args.lr, args.warmup)
+            logging.info("Using constant LR scheduler (warmup only, no decay)")
+        else:
+            scheduler = cosine_lr(optimizer, args.lr, args.warmup, total_steps)
+            logging.info("Using cosine LR scheduler with decay")
 
     scaler = GradScaler() if args.precision == "amp" else None
 
