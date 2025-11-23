@@ -1,8 +1,12 @@
 # Frozen Encoder Training Guide - Tonight's Work
 
 ## Overview
-Train 3 text encoders with **FROZEN weights** (as professor requested) to compare medical vs general BERT encoders on ODIR-5K.
+Train **projection layers** to align frozen pretrained encoders:
+- **Vision**: CLIP ViT-B/16 (frozen)
+- **Text**: Compare 3 BERT variants (frozen)
+- **Trainable**: Only projection heads
 
+**What's Actually Trained:** ~5-10% of parameters (projection layers only)
 **Timeline:** 2-3 hours total → Done by 1-2am
 
 ---
@@ -15,18 +19,24 @@ Train 3 text encoders with **FROZEN weights** (as professor requested) to compar
 
 ---
 
-## Training Approach: Feature Extraction
+## Training Approach: Feature Extraction (Linear Probing)
 
-### What Gets FROZEN (not trained):
-- ✅ Vision encoder (ViT-B/16) - 12 transformer layers
-- ✅ Text encoder (BERT) - 12 transformer layers
+### Pretrained Weights (FROZEN - not updated):
+- ❄️ **Vision Encoder**: CLIP ViT-B/16 (pretrained by OpenAI on image-text pairs)
+  - 12 transformer layers stay frozen
+- ❄️ **Text Encoder**: BERT variants (pretrained on medical/general text)
+  - PubMedBERT: Trained on 200GB medical literature
+  - BioBERT: Trained on biomedical papers
+  - BERT-base: Trained on general English
+  - All 12 transformer layers stay frozen
 
-### What Gets TRAINED (updated):
-- ⚙️ Vision projection head (`visual.proj`)
-- ⚙️ Text projection heads (`text_projection`, `text_projection_left`, `text_projection_right`)
-- ⚙️ Logit scale parameter
+### What Gets TRAINED (randomly initialized, then updated):
+- 🔥 **Vision Projection Head** (`visual.proj`) - Maps vision features to shared space
+- 🔥 **Text Projection Heads** (`text_projection`, `text_projection_left`, `text_projection_right`) - Maps text features to shared space
+- 🔥 **Logit Scale** - Temperature parameter for contrastive loss
 
 **Total trainable params:** ~5-10% of full model → much faster training!
+**Training objective:** Align pretrained vision and text encoders via projection layers
 
 ---
 
@@ -207,7 +217,7 @@ BioBERT         Medical     11-14%       58-63%
 
 ### Professor Q1: "Are weights frozen?"
 
-**Answer:** "Yes! We froze both the vision encoder (ViT-B/16) and text encoder weights, training only the projection layers. This follows best practices for transfer learning on small datasets - our 3,034 images can't support millions of parameters without overfitting."
+**Answer:** "Yes! We froze both encoders - the vision encoder (CLIP ViT-B/16) and text encoder (BERT) - and trained only the projection layers that align their embeddings. This is feature extraction/linear probing: we use pretrained encoders as frozen feature extractors and learn only the alignment mapping. Our 3,034 images can't support retraining millions of encoder parameters, but training ~5-10% (projections) prevents overfitting while leveraging pretrained knowledge."
 
 ### Professor Q2: "What text encoder?"
 

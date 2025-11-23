@@ -2,7 +2,10 @@
 
 **Current Time:** ~11pm
 **Presentation:** Tomorrow 5pm
-**Timeline:** 2-3 hours training → Done by 1-2am
+**Timeline:** 2-3 hours training projection layers → Done by 1-2am
+
+**What We're Training:** Projection layers ONLY (vision and text encoders frozen)
+**Pretrained Weights:** CLIP ViT-B/16 (vision) + PubMedBERT/BioBERT/BERT (text)
 
 ---
 
@@ -55,11 +58,16 @@ f"--freeze-text " \          # NEW!
 ## 📊 What You'll Get (Results for Presentation)
 
 ### Training Timeline:
-- **11:30pm:** Start training PubMedBERT (45 min)
-- **12:15am:** Start training BERT-base (45 min)
-- **1:00am:** Start training BioBERT (45 min)
+- **11:30pm:** Train projection layers with PubMedBERT text encoder (45 min)
+- **12:15am:** Train projection layers with BERT-base text encoder (45 min)
+- **1:00am:** Train projection layers with BioBERT text encoder (45 min)
 - **1:45am:** Run evaluation (15 min)
 - **2:00am:** DONE! Sleep time.
+
+### What Actually Happens During Training:
+- **Pretrained & Frozen**: CLIP ViT-B/16 (vision) + BERT variants (text)
+- **Randomly Initialized & Trained**: Projection heads (visual.proj, text_projection)
+- **Loss**: Tripartite contrastive loss (global + left eye + right eye)
 
 ### Results Table (What You'll Present):
 ```
@@ -76,7 +84,7 @@ BioBERT         BERT    Medical     11-14%      58-63%
 
 ### **Q1: "Are the weights frozen?"**
 
-✅ **Answer:** "Yes! We froze both vision and text encoder weights and trained only the projection layers (last 2 layers). This prevents overfitting on our 3,034-image dataset while preserving the pretrained medical knowledge."
+✅ **Answer:** "Yes! We froze both the vision encoder (CLIP ViT-B/16) and text encoder (BERT) weights, training only the projection layers that align them. This prevents overfitting on our 3,034-image dataset while preserving the pretrained knowledge from CLIP (vision) and medical BERT (language understanding)."
 
 ### **Q2: "What text encoder are you using?"**
 
