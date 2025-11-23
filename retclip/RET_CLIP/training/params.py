@@ -175,6 +175,12 @@ def parse_args():
         help="Freeze the weight of vision encoder.",
     )
     parser.add_argument(
+        "--freeze-text",
+        action="store_true",
+        default=False,
+        help="Freeze the weight of text encoder.",
+    )
+    parser.add_argument(
         "--text-model",
         choices=[
             "RoBERTa-wwm-ext-base-chinese",
@@ -182,7 +188,8 @@ def parse_args():
             "RBT3-chinese",
             "microsoft-BiomedNLP-PubMedBERT-base-uncased-abstract-fulltext",
             "bert-base-uncased",
-            "dmis-lab-biobert-base-cased-v1.1"
+            "dmis-lab-biobert-base-cased-v1.1",
+            "clip-vit-b-16"
         ],
         default="RoBERTa-wwm-ext-base-chinese",
         help="Name of the text backbone to use.",

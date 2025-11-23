@@ -1,0 +1,11 @@
+# Requirements for BiomedCLIP Zero-Shot Evaluation
+# Install with: pip install -r biomedclip_requirements.txt
+
+torch>=2.0.0
+torchvision>=0.15.0
+open_clip_torch
+pandas
+pillow
+numpy
+scikit-learn
+tqdm

@@ -1,0 +1,9 @@
+{
+    "vocab_size": 49408,
+    "text_context_length": 77,
+    "text_transformer_width": 512,
+    "text_transformer_heads": 8,
+    "text_transformer_layers": 12,
+    "text_hidden_size": 512,
+    "text_embed_dim": 512
+}

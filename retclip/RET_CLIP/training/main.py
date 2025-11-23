@@ -133,6 +133,11 @@ def main():
                     m.eval()
         logging.info("The visual encoder is freezed during training.")
 
+    if args.freeze_text:
+        for k, v in model.bert.named_parameters():
+            v.requires_grad = False
+        logging.info("The text encoder is freezed during training.")
+
     # To make compatible with torch version <= 1.8.0, set find_unused_parameters to True
     # In other cases, set find_unused_parameters to False
     find_unused_parameters = torch_version_str_compare_lessequal(torch.__version__, "1.8.0")
@@ -395,6 +400,19 @@ def main():
         # 2023.9.27
         for param in model.parameters():
             param.requires_grad = True
+
+        # Re-apply freezing if enabled (fix bug where frozen weights get unfrozen each epoch)
+        if args.freeze_vision:
+            for k, v in model.module.visual.named_parameters():
+                v.requires_grad = False
+            if args.vision_model in ['RN50']:
+                for m in model.module.visual.modules():
+                    if isinstance(m, torch.nn.BatchNorm2d):
+                        m.eval()
+
+        if args.freeze_text:
+            for k, v in model.module.bert.named_parameters():
+                v.requires_grad = False
 
         if args.distllation:
             num_steps_this_epoch = train(model, data, epoch, optimizer, scaler, scheduler, args, steps, teacher_model)
