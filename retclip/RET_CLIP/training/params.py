@@ -86,6 +86,10 @@ def parse_args():
     parser.add_argument(
         "--warmup", type=int, default=500, help="Number of steps to warmup for."
     )
+    parser.add_argument(
+        "--max-grad-norm", type=float, default=1.0,
+        help="Maximum gradient norm for clipping (default: 1.0, set to None to disable)."
+    )
     parser.add_argument("--use-bn-sync",
                         default=False,
                         action="store_true",

@@ -339,6 +339,10 @@ def train(model, data, epoch, optimizer, scaler, scheduler, args, global_trained
                                                                                        loss_img, loss_txt, eos_indices,
                                                                                        args)
                     scaler.scale(total_loss).backward()
+                    # Gradient clipping (unscale first for AMP)
+                    if args.max_grad_norm is not None:
+                        scaler.unscale_(optimizer)
+                        torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
                     scaler.step(optimizer)
                 scaler.update()
 
@@ -349,6 +353,9 @@ def train(model, data, epoch, optimizer, scaler, scheduler, args, global_trained
                 else:
                     total_loss, acc = get_loss(model, img_l, img_r, texts, loss_img, loss_txt, eos_indices, args)
                 total_loss.backward()
+                # Gradient clipping
+                if args.max_grad_norm is not None:
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
                 optimizer.step()
         else:
             # First, cache the features without any gradient tracking.
@@ -399,10 +406,16 @@ def train(model, data, epoch, optimizer, scaler, scheduler, args, global_trained
                 else:
                     total_loss.backward()
 
+            # Gradient clipping after accumulation
             if args.precision == "amp":
+                if args.max_grad_norm is not None:
+                    scaler.unscale_(optimizer)
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
                 scaler.step(optimizer)
                 scaler.update()
             else:
+                if args.max_grad_norm is not None:
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
                 optimizer.step()
 
         # reset gradient accum, if enabled
